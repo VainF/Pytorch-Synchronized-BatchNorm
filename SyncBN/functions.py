@@ -84,7 +84,9 @@ class SyncBNFunction(Function):
     def backward(ctx, grad_output):
         x, _ex, _exs, weight, bias = ctx.saved_tensors
         grad_x = grad_weight = grad_bias = None
-        B,C,H,W = grad_output.shape
+
+        B,C = grad_output.shape[:2]
+        grad_output_shape = grad_output.shape
 
         _var = _exs - _ex.pow(2)
         _std = torch.sqrt( _var + ctx.eps)
@@ -140,7 +142,7 @@ class SyncBNFunction(Function):
         if ctx.needs_input_grad[2]:
             grad_bias = grad_output_sum
         
-        return grad_x.view(B,C,H,W), grad_weight, grad_bias, None, None, None, None, None, None
+        return grad_x.view(*grad_output_shape), grad_weight, grad_bias, None, None, None, None, None, None
 
         
 
